@@ -21,3 +21,19 @@ Content-Type: application/json
     "UserId": 1,
     "TagIds": [1, 2, 3]
 }
+
+###
+# PUT /posts/{id}
+PUT http://localhost:5175/posts/3
+Content-Type: application/json
+
+{
+    "Title": "Paint",
+    "Slug": "paint-simple-drawing-tool",
+    "Summary": "Simple drawing tool, edited",
+    "Content": "Edited content",
+    "IsPublished": false,
+    "CoverImageUrl": "",
+    "CategoryId": 1,
+    "TagIds": [1, 2, 3]
+}

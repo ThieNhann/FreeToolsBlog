@@ -91,7 +91,32 @@ public static class PostEndpoints
 
             return Results.Created($"/posts/{post.Slug}", new { post.Id, post.Slug });
         });
+
         // PUT /admin/posts/{id}
+        group.MapPut("/{id}", async (int id, EditPostDto newPost, AppDbContext dbContext) =>
+        {
+
+            if (await dbContext.Posts.AnyAsync(post => post.Slug == newPost.Slug))
+            {
+                return Results.Conflict(new { message = $"A post with slug '{newPost.Slug}' already exists." });
+            }
+            var post = await dbContext.Posts.FindAsync(id);
+
+            if (post is null) return Results.NotFound();
+
+            post.Title = newPost.Title;
+            post.Slug = newPost.Slug;
+            post.Summary = newPost.Summary;
+            post.Content = newPost.Content;
+            post.IsPublished = newPost.IsPublished;
+            post.CoverImageUrl = newPost.CoverImageUrl;
+            post.UpdatedAt = DateTime.UtcNow;
+            post.CategoryId = newPost.CategoryId;
+
+            await dbContext.SaveChangesAsync();
+
+            return Results.Ok();
+        });
         // DELETE /admin/posts/{id}
     }
 }
