@@ -1,7 +1,6 @@
 // GET /posts
 GET http://localhost:5175/posts
 
-
 ###
 // GET /post/{slug}
 GET http://localhost:5175/posts/5-cong-cu-truc-tuyen-mien-phi
@@ -23,7 +22,7 @@ Content-Type: application/json
 }
 
 ###
-# PUT /posts/{id}
+// PUT /posts/{id}
 PUT http://localhost:5175/posts/3
 Content-Type: application/json
 
@@ -37,3 +36,7 @@ Content-Type: application/json
     "CategoryId": 1,
     "TagIds": [1, 2, 3]
 }
+
+###
+// DELETE /posts/{id}
+DELETE http://localhost:5175/posts/4

@@ -117,6 +117,19 @@ public static class PostEndpoints
 
             return Results.Ok();
         });
+
         // DELETE /admin/posts/{id}
+        group.MapDelete("/{id}", async (int id, AppDbContext dbContext) =>
+        {
+            var post = dbContext.Posts.Find(id);
+
+            if (post is null) return Results.NotFound();
+            
+            dbContext.Posts.Remove(post);
+
+            await dbContext.SaveChangesAsync();
+
+            return Results.NoContent();
+        });
     }
 }
