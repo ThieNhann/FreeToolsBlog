@@ -1,3 +1,4 @@
+using FreeToolsBlog.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreeToolsBlog.Api.Data;
@@ -5,10 +6,10 @@ namespace FreeToolsBlog.Api.Data;
 public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(options)
 {
     public DbSet<User> Users => Set<User>();
-    public DbSet<Category> Users => Set<Category>();
-    public DbSet<Tag> Users => Set<Tag>();
-    public DbSet<Post> Users => Set<Post>();
-    public DbSet<PostTag> Users => Set<PostTag>();
+    public DbSet<Category> Categories => Set<Category>();
+    public DbSet<Tag> Tags => Set<Tag>();
+    public DbSet<Post> Posts => Set<Post>();
+    public DbSet<PostTag> PostTags => Set<PostTag>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,11 +20,11 @@ public class AppDbContext(DbContextOptions<AppDbContext> options) : DbContext(op
 
         modelBuilder.Entity<PostTag>()
             .HasOne(pt => pt.Post)
-            .WithMany(p => PostTags)
+            .WithMany(p => p.PostTags)
             .HasForeignKey(pt => pt.PostId);
 
         modelBuilder.Entity<PostTag>()
-            .HasOne(pit => pt.Tag)
+            .HasOne(pt => pt.Tag)
             .WithMany(t => t.PostTags)
             .HasForeignKey(pt => pt.TagId);
 
