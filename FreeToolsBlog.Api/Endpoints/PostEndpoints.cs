@@ -1,6 +1,7 @@
 
 using FreeToolsBlog.Api.Data;
 using FreeToolsBlog.Api.Dtos;
+using FreeToolsBlog.Api.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreeToolsBlog.Api.Endpoints;
@@ -13,10 +14,6 @@ public static class PostEndpoints
 
         // GET /posts
         group.MapGet("/", async (AppDbContext dbContext) => await dbContext.Posts
-                                                                            .Include(post => post.Category)
-                                                                            .Include(post => post.User)
-                                                                            .Include(post => post.PostTags)
-                                                                                .ThenInclude(postTag => postTag.Tag)
                                                                             .Select(post => new PostSummaryDto(
                                                                                 post.Id,
                                                                                 post.Title,
@@ -34,7 +31,66 @@ public static class PostEndpoints
                                                                             .ToListAsync());
 
         // GET /posts/{slug}
+        group.MapGet("/{slug}", async (string slug, AppDbContext dbContext) =>
+        {
+            var post = await dbContext.Posts
+                                        .Where(post => post.Slug == slug)
+                                        .Select(post => new PostSummaryDto(
+                                            post.Id,
+                                            post.Title,
+                                            post.Slug,
+                                            post.Summary,
+                                            post.Content,
+                                            post.CoverImageUrl,
+                                            post.CreatedAt,
+                                            post.UpdatedAt,
+                                            post.Category.Name,
+                                            post.User.Username,
+                                            post.PostTags.Select(pt => pt.Tag.Name).ToList()
+                                        ))
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync();
+    
+            return post is null ? Results.NotFound() : Results.Ok(post);
+        });
+
         // POST /admin/posts
+        group.MapPost("/", async (CreatePostDto newPost, AppDbContext dbContext) =>
+        {
+            if (await dbContext.Posts.AnyAsync(post => post.Slug == newPost.Slug))
+            {
+                return Results.Conflict(new { message = $"A post with slug '{newPost.Slug}' already exists." });
+            }
+
+            Post post = new () 
+            {
+                Title = newPost.Title,
+                Slug = newPost.Slug,
+                Summary = newPost.Summary,
+                Content = newPost.Content,
+                IsPublished = false,
+                CoverImageUrl = newPost.CoverImageUrl,
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow,
+                CategoryId = newPost.CategoryId,
+                UserId = newPost.UserId,
+            };
+
+            if (newPost.TagIds != null && newPost.TagIds.Any())
+            {
+                post.PostTags = newPost.TagIds
+                                            .Select(tagId => new PostTag
+                                            {
+                                                TagId = tagId
+                                            })
+                                            .ToList();
+            }
+
+            dbContext.Posts.Add(post);
+            await dbContext.SaveChangesAsync();
+
+            return Results.Created($"/posts/{post.Slug}", new { post.Id, post.Slug });
+        });
         // PUT /admin/posts/{id}
         // DELETE /admin/posts/{id}
     }

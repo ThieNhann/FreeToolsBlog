@@ -1,1 +1,23 @@
+// GET /posts
 GET http://localhost:5175/posts
+
+
+###
+// GET /post/{slug}
+GET http://localhost:5175/posts/5-cong-cu-truc-tuyen-mien-phi
+
+###
+// POST /post/
+POST http://localhost:5175/posts/
+Content-Type: application/json
+
+{
+    "Title": "Streamio",
+    "Slug": "streamio-free-streaming-app-test",
+    "Summary": "Multi source streaming app",
+    "Content": "Some shit some shit some shit",
+    "CoverImageUrl": null,
+    "CategoryId": 1,
+    "UserId": 1,
+    "TagIds": [1, 2, 3]
+}
