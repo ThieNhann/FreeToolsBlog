@@ -23,9 +23,11 @@ public static class PostEndpoints
                                                                                 post.CoverImageUrl,
                                                                                 post.CreatedAt,
                                                                                 post.UpdatedAt,
-                                                                                post.Category.Name,
                                                                                 post.User.Username,
-                                                                                post.PostTags.Select(pt => pt.Tag.Name).ToList()
+                                                                                post.Comments
+                                                                                    .OrderBy(comment => comment.CreatedAt)
+                                                                                    .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
+                                                                                    .ToList()
                                                                             ))
                                                                             .AsNoTracking()
                                                                             .ToListAsync());
@@ -44,9 +46,11 @@ public static class PostEndpoints
                                             post.CoverImageUrl,
                                             post.CreatedAt,
                                             post.UpdatedAt,
-                                            post.Category.Name,
                                             post.User.Username,
-                                            post.PostTags.Select(pt => pt.Tag.Name).ToList()
+                                            post.Comments
+                                                .OrderBy(comment => comment.CreatedAt)
+                                                .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
+                                                .ToList()
                                         ))
                                         .AsNoTracking()
                                         .FirstOrDefaultAsync();
@@ -72,24 +76,35 @@ public static class PostEndpoints
                 CoverImageUrl = newPost.CoverImageUrl,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,
-                CategoryId = newPost.CategoryId,
                 UserId = newPost.UserId,
             };
-
-            if (newPost.TagIds != null && newPost.TagIds.Any())
-            {
-                post.PostTags = newPost.TagIds
-                                            .Select(tagId => new PostTag
-                                            {
-                                                TagId = tagId
-                                            })
-                                            .ToList();
-            }
 
             dbContext.Posts.Add(post);
             await dbContext.SaveChangesAsync();
 
             return Results.Created($"/posts/{post.Slug}", new { post.Id, post.Slug });
+        });
+
+        group.MapPost("/{postId:int}/comments", async (int postId, CreateCommentDto newComment, AppDbContext dbContext) =>
+        {
+            var post = await dbContext.Posts.FindAsync(postId);
+            if (post is null)
+            {
+                return Results.NotFound();
+            }
+
+            var comment = new Comment
+            {
+                Name = newComment.Name,
+                Content = newComment.Content,
+                PostId = postId,
+                CreatedAt = DateTime.UtcNow
+            };
+
+            dbContext.Comments.Add(comment);
+            await dbContext.SaveChangesAsync();
+
+            return Results.Created($"/posts/{post.Slug}", new CommentDto(comment.Name, comment.Content, comment.CreatedAt));
         });
 
         // PUT /admin/posts/{id}
@@ -111,7 +126,6 @@ public static class PostEndpoints
             post.IsPublished = newPost.IsPublished;
             post.CoverImageUrl = newPost.CoverImageUrl;
             post.UpdatedAt = DateTime.UtcNow;
-            post.CategoryId = newPost.CategoryId;
 
             await dbContext.SaveChangesAsync();
 

@@ -16,8 +16,5 @@ public record EditPostDto
     [property: Required(ErrorMessage = "Content is required.")]
     string Content,
     bool IsPublished,
-    string? CoverImageUrl,
-    [property: Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0.")]
-    int CategoryId,
-    List<int> TagIds
+    string? CoverImageUrl
 );

@@ -12,14 +12,9 @@ public class Post
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
 
-    // Foreign Key: 1 Category
-    public int CategoryId { get; set; }
-    public Category Category { get; set; } = null!;
-
     // Foreign Key: 1 User
     public int UserId { get; set; }
     public User User { get; set; } = null!;
 
-    // Many many with Tag
-    public ICollection<PostTag> PostTags { get; set; } = new List<PostTag>();
+    public ICollection<Comment> Comments { get; set; } = new List<Comment>();
 }

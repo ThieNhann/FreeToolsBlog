@@ -6,7 +6,7 @@ GET http://localhost:5175/posts
 GET http://localhost:5175/posts/5-cong-cu-truc-tuyen-mien-phi
 
 ###
-// POST /post/
+// POST /posts
 POST http://localhost:5175/posts/
 Content-Type: application/json
 
@@ -16,9 +16,17 @@ Content-Type: application/json
     "Summary": "Multi source streaming app",
     "Content": "Some shit some shit some shit",
     "CoverImageUrl": null,
-    "CategoryId": 1,
-    "UserId": 1,
-    "TagIds": [1, 2, 3]
+    "UserId": 1
+}
+
+###
+// POST /posts/{postId}/comments
+POST http://localhost:5175/posts/1/comments
+Content-Type: application/json
+
+{
+    "Name": "Minh Anh",
+    "Content": "Bài viết rất hữu ích, cảm ơn bạn!"
 }
 
 ###
@@ -32,9 +40,7 @@ Content-Type: application/json
     "Summary": "Simple drawing tool, edited",
     "Content": "Edited content",
     "IsPublished": false,
-    "CoverImageUrl": "",
-    "CategoryId": 1,
-    "TagIds": [1, 2, 3]
+    "CoverImageUrl": ""
 }
 
 ###

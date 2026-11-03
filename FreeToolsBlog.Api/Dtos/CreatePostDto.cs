@@ -4,7 +4,6 @@ namespace FreeToolsBlog.Api.Dtos;
 
 public record CreatePostDto
 (
-    int Id,
     [property: Required(ErrorMessage = "Title is required.")]
     [property: StringLength(200, ErrorMessage = "Title cannot exceed 200 characters.")]
     string Title,
@@ -17,9 +16,6 @@ public record CreatePostDto
     [property: Required(ErrorMessage = "Content is required.")]
     string Content,
     string? CoverImageUrl,
-    [property: Range(1, int.MaxValue, ErrorMessage = "Category ID must be greater than 0.")]
-    int CategoryId,
     [property: Range(1, int.MaxValue, ErrorMessage = "User ID must be greater than 0.")]
-    int UserId,
-    List<int> TagIds
+    int UserId
 );

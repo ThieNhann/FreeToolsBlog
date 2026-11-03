@@ -17,38 +17,37 @@ namespace FreeToolsBlog.Api.Data.Migrations
 #pragma warning disable 612, 618
             modelBuilder.HasAnnotation("ProductVersion", "10.0.14");
 
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.Category", b =>
+            modelBuilder.Entity("FreeToolsBlog.Api.Models.Comment", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("INTEGER");
 
-                    b.Property<string>("Description")
+                    b.Property<string>("Content")
+                        .IsRequired()
+                        .HasColumnType("TEXT");
+
+                    b.Property<DateTime>("CreatedAt")
                         .HasColumnType("TEXT");
 
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("TEXT");
 
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
+                    b.Property<int>("PostId")
+                        .HasColumnType("INTEGER");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("Slug")
-                        .IsUnique();
+                    b.HasIndex("PostId");
 
-                    b.ToTable("Categories");
+                    b.ToTable("Comments");
                 });
 
             modelBuilder.Entity("FreeToolsBlog.Api.Models.Post", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("CategoryId")
                         .HasColumnType("INTEGER");
 
                     b.Property<string>("Content")
@@ -84,51 +83,12 @@ namespace FreeToolsBlog.Api.Data.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("CategoryId");
-
                     b.HasIndex("Slug")
                         .IsUnique();
 
                     b.HasIndex("UserId");
 
                     b.ToTable("Posts");
-                });
-
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.PostTag", b =>
-                {
-                    b.Property<int>("PostId")
-                        .HasColumnType("INTEGER");
-
-                    b.Property<int>("TagId")
-                        .HasColumnType("INTEGER");
-
-                    b.HasKey("PostId", "TagId");
-
-                    b.HasIndex("TagId");
-
-                    b.ToTable("PostTags");
-                });
-
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.Tag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("INTEGER");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.Property<string>("Slug")
-                        .IsRequired()
-                        .HasColumnType("TEXT");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("Slug")
-                        .IsUnique();
-
-                    b.ToTable("Tags");
                 });
 
             modelBuilder.Entity("FreeToolsBlog.Api.Models.User", b =>
@@ -157,57 +117,31 @@ namespace FreeToolsBlog.Api.Data.Migrations
                     b.ToTable("Users");
                 });
 
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.Post", b =>
+            modelBuilder.Entity("FreeToolsBlog.Api.Models.Comment", b =>
                 {
-                    b.HasOne("FreeToolsBlog.Api.Models.Category", "Category")
-                        .WithMany("Posts")
-                        .HasForeignKey("CategoryId")
+                    b.HasOne("FreeToolsBlog.Api.Models.Post", "Post")
+                        .WithMany("Comments")
+                        .HasForeignKey("PostId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.Navigation("Post");
+                });
+
+            modelBuilder.Entity("FreeToolsBlog.Api.Models.Post", b =>
+                {
                     b.HasOne("FreeToolsBlog.Api.Models.User", "User")
                         .WithMany("Posts")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.Navigation("Category");
-
                     b.Navigation("User");
-                });
-
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.PostTag", b =>
-                {
-                    b.HasOne("FreeToolsBlog.Api.Models.Post", "Post")
-                        .WithMany("PostTags")
-                        .HasForeignKey("PostId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("FreeToolsBlog.Api.Models.Tag", "Tag")
-                        .WithMany("PostTags")
-                        .HasForeignKey("TagId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Post");
-
-                    b.Navigation("Tag");
-                });
-
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.Category", b =>
-                {
-                    b.Navigation("Posts");
                 });
 
             modelBuilder.Entity("FreeToolsBlog.Api.Models.Post", b =>
                 {
-                    b.Navigation("PostTags");
-                });
-
-            modelBuilder.Entity("FreeToolsBlog.Api.Models.Tag", b =>
-                {
-                    b.Navigation("PostTags");
+                    b.Navigation("Comments");
                 });
 
             modelBuilder.Entity("FreeToolsBlog.Api.Models.User", b =>

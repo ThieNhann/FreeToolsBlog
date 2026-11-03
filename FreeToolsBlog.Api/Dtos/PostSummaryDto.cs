@@ -20,9 +20,7 @@ public record PostSummaryDto
     string? CoverImageUrl,
     DateTime CreatedAt,
     DateTime UpdatedAt,
-    [property: Required(ErrorMessage = "Category name is required.")]
-    string CategoryName,
     [property: Required(ErrorMessage = "User name is required.")]
     string UserName,
-    List<string> Tags
+    List<CommentDto> Comments
 );
