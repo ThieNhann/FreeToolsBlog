@@ -6,6 +6,10 @@ GET http://localhost:5175/posts
 GET http://localhost:5175/posts/5-cong-cu-truc-tuyen-mien-phi
 
 ###
+// GET /posts/id/{id}
+GET http://localhost:5175/posts/id/2
+
+###
 // POST /posts
 POST http://localhost:5175/posts/
 Content-Type: application/json
@@ -21,12 +25,12 @@ Content-Type: application/json
 
 ###
 // POST /posts/{postId}/comments
-POST http://localhost:5175/posts/1/comments
+POST http://localhost:5175/posts/2/comments
 Content-Type: application/json
 
 {
-    "Name": "Minh Anh",
-    "Content": "Bài viết rất hữu ích, cảm ơn bạn!"
+    "Name": "Tung Tung",
+    "Content": "Tool nhu cc!"
 }
 
 ###

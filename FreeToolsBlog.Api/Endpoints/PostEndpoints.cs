@@ -54,6 +54,32 @@ public static class PostEndpoints
                                         ))
                                         .AsNoTracking()
                                         .FirstOrDefaultAsync();
+
+            return post is null ? Results.NotFound() : Results.Ok(post);
+        });
+
+        // GET /posts/id/{id}
+        group.MapGet("/id/{id:int}", async (int id, AppDbContext dbContext) =>
+        {
+            var post = await dbContext.Posts
+                                        .Where(post => post.Id == id)
+                                        .Select(post => new PostSummaryDto(
+                                            post.Id,
+                                            post.Title,
+                                            post.Slug,
+                                            post.Summary,
+                                            post.Content,
+                                            post.CoverImageUrl,
+                                            post.CreatedAt,
+                                            post.UpdatedAt,
+                                            post.User.Username,
+                                            post.Comments
+                                                .OrderBy(comment => comment.CreatedAt)
+                                                .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
+                                                .ToList()
+                                        ))
+                                        .AsNoTracking()
+                                        .FirstOrDefaultAsync();
     
             return post is null ? Results.NotFound() : Results.Ok(post);
         });
