@@ -9,6 +9,7 @@ var app = builder.Build();
 
 app.MigrateDb();
 
-app.MapPostEndpoints();
+app.MapPublicEndpoints();
+app.MapAdminEndpoints();
 
 app.Run();
