@@ -1,8 +1,13 @@
+using System.IdentityModel.Tokens.Jwt;
+using System.Security.Claims;
+using System.Text;
 using FreeToolsBlog.Api.Data;
 using FreeToolsBlog.Api.Dtos;
 using FreeToolsBlog.Api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 
 namespace FreeToolsBlog.Api.Endpoints;
 
@@ -10,13 +15,41 @@ public static class AdminEndpoints
 {
     public static void MapAdminEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/");
+        var jwtSettings = app.Configuration.GetSection("Jwt");
 
-        // login 
-        group.MapPost("/login", (LoginRequest login) =>
+        app.MapPost("/login", async (
+            LoginRequest login,
+            AppDbContext dbContext,
+            IConfiguration configuration) =>
         {
-            
-        });
+            var user = await dbContext.Users.SingleOrDefaultAsync(user => user.Email == login.Email);
+            if (user is null || !user.IsAdmin || string.IsNullOrEmpty(user.PasswordHash) ||
+                new PasswordHasher<User>().VerifyHashedPassword(user, user.PasswordHash, login.Password) == PasswordVerificationResult.Failed)
+            {
+                return Results.Unauthorized();
+            }
+
+            var claims = new[]
+            {
+                new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
+                new Claim(ClaimTypes.Name, user.Username),
+                new Claim(ClaimTypes.Role, "Admin")
+            };
+            var credentials = new SigningCredentials(
+                new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings["SecretKey"]!)),
+                SecurityAlgorithms.HmacSha256);
+            var expiryInMinutes = configuration.GetValue("Jwt:ExpiryInMinutes", 60);
+            var token = new JwtSecurityToken(
+                issuer: jwtSettings["Issuer"],
+                audience: jwtSettings["Audience"],
+                claims: claims,
+                expires: DateTime.UtcNow.AddMinutes(expiryInMinutes),
+                signingCredentials: credentials);
+
+            return Results.Ok(new { accessToken = new JwtSecurityTokenHandler().WriteToken(token) });
+        }).AllowAnonymous();
+
+        var group = app.MapGroup("/admin/posts").RequireAuthorization("AdminOnly");
         // GET /admin/posts
         // GET /admin/posts/{id}
 

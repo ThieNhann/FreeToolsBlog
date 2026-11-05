@@ -1,4 +1,5 @@
 using FreeToolsBlog.Api.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreeToolsBlog.Api.Data;
@@ -15,6 +16,13 @@ public static class DataExtension
     public static void AddAppDb(this WebApplicationBuilder builder)
     {
         var connString = builder.Configuration.GetConnectionString("ToolsBlog");
+        var adminUsername = builder.Configuration["Admin:Username"];
+        var adminPassword = builder.Configuration["Admin:Password"];
+        if (string.IsNullOrWhiteSpace(adminUsername) != string.IsNullOrWhiteSpace(adminPassword))
+        {
+            throw new InvalidOperationException("Configure both Admin:Username and Admin:Password to bootstrap an admin account.");
+        }
+
         builder.Services.AddSqlite<AppDbContext>(
             connString,
             optionsAction: options => options.UseSeeding((context, _) =>
@@ -73,6 +81,32 @@ public static class DataExtension
                         );
                         context.SaveChanges();
                     }
+                }
+
+                if (!string.IsNullOrWhiteSpace(adminUsername))
+                {
+                    var admin = context.Set<User>().SingleOrDefault(user => user.Username == adminUsername);
+                    if (admin is null)
+                    {
+                        admin = new User
+                        {
+                            Username = adminUsername,
+                            Email = $"{adminUsername}@freetoolsblog.local",
+                            IsAdmin = true
+                        };
+                        admin.PasswordHash = new PasswordHasher<User>().HashPassword(admin, adminPassword!);
+                        context.Add(admin);
+                    }
+                    else
+                    {
+                        admin.IsAdmin = true;
+                        if (string.IsNullOrEmpty(admin.PasswordHash))
+                        {
+                            admin.PasswordHash = new PasswordHasher<User>().HashPassword(admin, adminPassword!);
+                        }
+                    }
+
+                    context.SaveChanges();
                 }
             })
         );
