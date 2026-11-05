@@ -12,24 +12,43 @@ public static class PublicEndpoints
         var group = app.MapGroup("/posts");
 
         // GET /posts
-        group.MapGet("/", async (AppDbContext dbContext) => await dbContext.Posts
-                                                                            .Select(post => new PostSummaryDto(
-                                                                                post.Id,
-                                                                                post.Title,
-                                                                                post.Slug,
-                                                                                post.Summary,
-                                                                                post.Content,
-                                                                                post.CoverImageUrl,
-                                                                                post.CreatedAt,
-                                                                                post.UpdatedAt,
-                                                                                post.User.Username,
-                                                                                post.Comments
-                                                                                    .OrderBy(comment => comment.CreatedAt)
-                                                                                    .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
-                                                                                    .ToList()
-                                                                            ))
-                                                                            .AsNoTracking()
-                                                                            .ToListAsync());
+        // group.MapGet("/", async (AppDbContext dbContext) => await dbContext.Posts
+        //                                                                     .Select(post => new PostSummaryDto(
+        //                                                                         post.Id,
+        //                                                                         post.Title,
+        //                                                                         post.Slug,
+        //                                                                         post.Summary,
+        //                                                                         post.Content,
+        //                                                                         post.CoverImageUrl,
+        //                                                                         post.CreatedAt,
+        //                                                                         post.UpdatedAt,
+        //                                                                         post.User.Username,
+        //                                                                         post.Comments
+        //                                                                             .OrderBy(comment => comment.CreatedAt)
+        //                                                                             .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
+        //                                                                             .ToList()
+        //                                                                     ))
+        //                                                                     .AsNoTracking()
+        //                                                                     .ToListAsync());
+
+        // GET /posts?pageNumber={x}&pageSize={y}
+        group.MapGet("/", async (
+            [AsParametersAttribute] PaginationParams validFilter,
+            AppDbContext dbContext) => 
+        {
+            var skip = (validFilter.PageNumber - 1) * validFilter.PageSize;
+            var totalRecords = await dbContext.Posts.CountAsync();
+
+            var data = await dbContext.Posts
+                                        .AsNoTracking()
+                                        .OrderBy(post => post.Id)
+                                        .Skip(skip)
+                                        .Take(validFilter.PageSize)
+                                        .ToListAsync();
+
+            var response = new PagedResponse<Post>(data, validFilter.PageNumber, validFilter.PageSize, totalRecords);
+            return Results.Ok(response);
+        });
 
         // GET /posts/{slug}
         group.MapGet("/{slug}", async (string slug, AppDbContext dbContext) =>
@@ -55,6 +74,33 @@ public static class PublicEndpoints
                                         .FirstOrDefaultAsync();
 
             return post is null ? Results.NotFound() : Results.Ok(post);
+        });
+
+        // GET /posts/
+        group.MapGet("/{postId:int}/comments/", async (
+            int postId,
+            [AsParametersAttribute] PaginationParams validFilter,
+            AppDbContext dbContext) =>
+        {
+            var existing = await dbContext.Posts.AnyAsync();
+            if (existing == false) return Results.NotFound();
+
+            var comments = dbContext.Comments
+                                                    .AsNoTracking()
+                                                    .Where(c => c.PostId == postId);
+
+            var totalRecords = await comments.CountAsync();
+
+            var skip = (validFilter.PageNumber - 1) * validFilter.PageSize;
+
+            var data = await comments
+                                .OrderBy(c => c.CreatedAt)
+                                .Skip(skip)
+                                .Take(validFilter.PageSize)
+                                .ToListAsync();
+
+            var response = new PagedResponse<Comment>(data, validFilter.PageNumber, validFilter.PageSize, totalRecords);
+            return Results.Ok(response);
         });
 
         // POST /posts/{postId}/comments

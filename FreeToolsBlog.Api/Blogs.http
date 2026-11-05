@@ -1,5 +1,9 @@
 // GET /posts
-GET http://localhost:5175/posts
+GET http://localhost:5175/posts?pageNumber=1&pageSize=3
+
+###
+// GET /posts
+GET http://localhost:5175/posts/1/comments?pageNumber=1&pageSize=3
 
 ###
 // GET /post/{slug}

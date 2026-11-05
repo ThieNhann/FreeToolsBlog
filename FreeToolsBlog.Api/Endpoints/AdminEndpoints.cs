@@ -1,6 +1,7 @@
 using FreeToolsBlog.Api.Data;
 using FreeToolsBlog.Api.Dtos;
 using FreeToolsBlog.Api.Models;
+using Microsoft.AspNetCore.Identity.Data;
 using Microsoft.EntityFrameworkCore;
 
 namespace FreeToolsBlog.Api.Endpoints;
@@ -9,8 +10,13 @@ public static class AdminEndpoints
 {
     public static void MapAdminEndpoints(this WebApplication app)
     {
-        var group = app.MapGroup("/admin/posts");
+        var group = app.MapGroup("/");
 
+        // login 
+        group.MapPost("/login", (LoginRequest login) =>
+        {
+            
+        });
         // GET /admin/posts
         // GET /admin/posts/{id}
 
