@@ -1,55 +1,77 @@
-// GET /posts
-GET http://localhost:5175/posts?pageNumber=1&pageSize=3
+@baseUrl = http://localhost:5175
+@adminEmail = admin@freetoolsblog.local
+@adminPassword = Ahihi213@
 
-###
-// GET /posts
-GET http://localhost:5175/posts/1/comments?pageNumber=1&pageSize=3
+### Public: list posts
+GET {{baseUrl}}/posts?pageNumber=1&pageSize=5
 
-###
-// GET /post/{slug}
-GET http://localhost:5175/posts/5-cong-cu-truc-tuyen-mien-phi
+### Public: get post by slug
+GET {{baseUrl}}/posts/5-cong-cu-truc-tuyen-mien-phi
 
-###
-// GET /posts/id/{id} (chưa implement)
+### Public: list comments for post 1
+GET {{baseUrl}}/posts/1/comments?pageNumber=1&pageSize=3
 
-###
-// POST /admin/posts
-POST http://localhost:5175/admin/posts/
+### Public: add a comment to post 1
+POST {{baseUrl}}/posts/1/comments
 Content-Type: application/json
 
 {
-    "Title": "Streamio",
-    "Slug": "streamio-free-streaming-app-test",
-    "Summary": "Multi source streaming app",
-    "Content": "Some shit some shit some shit",
-    "CoverImageUrl": null,
-    "UserId": 1
+  "name": "John",
+  "content": "Bài viết rất hữu ích!"
 }
 
-###
-// POST /posts/{postId}/comments
-POST http://localhost:5175/posts/2/comments
+### Admin: login (run this first; following requests use its accessToken)
+# @name login
+POST {{baseUrl}}/login
 Content-Type: application/json
 
 {
-    "Name": "Tung Tung",
-    "Content": "Tool nhu cc!"
+  "email": "{{adminEmail}}",
+  "password": "{{adminPassword}}"
 }
 
-###
-// PUT /admin/posts/{id}
-PUT http://localhost:5175/admin/posts/3
+### Admin: verify requests without a token are rejected (expect 401)
+POST {{baseUrl}}/admin/posts/
 Content-Type: application/json
 
 {
-    "Title": "Paint",
-    "Slug": "paint-simple-drawing-tool",
-    "Summary": "Simple drawing tool, edited",
-    "Content": "Edited content",
-    "IsPublished": false,
-    "CoverImageUrl": ""
+  "title": "Unauthorized test",
+  "slug": "unauthorized-test",
+  "summary": "Should not be created",
+  "content": "This request should return 401.",
+  "coverImageUrl": null,
+  "userId": 1
 }
 
-###
-// DELETE /admin/posts/{id}
-DELETE http://localhost:5175/admin/posts/4
+### Admin: create post (run login first)
+# @name createPost
+POST {{baseUrl}}/admin/posts/
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Bài viết thử nghiệm",
+  "slug": "bai-viet-thu-nghiem",
+  "summary": "Bài viết tạo từ Blogs.http.",
+  "content": "Nội dung thử nghiệm.",
+  "coverImageUrl": null,
+  "userId": 1
+}
+
+### Admin: update the post created above
+PUT {{baseUrl}}/admin/posts/{{createPost.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
+Content-Type: application/json
+
+{
+  "title": "Bài viết thử nghiệm (đã sửa)",
+  "slug": "bai-viet-thu-nghiem",
+  "summary": "Đã cập nhật từ Blogs.http.",
+  "content": "Nội dung đã chỉnh sửa.",
+  "isPublished": false,
+  "coverImageUrl": null
+}
+
+### Admin: delete the post created above
+DELETE {{baseUrl}}/admin/posts/{{createPost.response.body.$.id}}
+Authorization: Bearer {{login.response.body.$.accessToken}}
