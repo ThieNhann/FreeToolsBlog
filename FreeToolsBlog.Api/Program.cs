@@ -50,7 +50,7 @@ builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
         policy.WithOrigins(frontendAllowedOrigins).AllowAnyHeader().AllowAnyMethod();
     }
 }));
-
+builder.Services.AddMemoryCache();
 builder.Services.AddValidation();
 builder.AddAppDb();
 var app = builder.Build();

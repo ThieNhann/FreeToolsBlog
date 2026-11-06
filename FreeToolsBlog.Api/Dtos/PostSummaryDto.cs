@@ -22,5 +22,7 @@ public record PostSummaryDto
     DateTime UpdatedAt,
     [property: Required(ErrorMessage = "User name is required.")]
     string UserName,
-    List<CommentDto> Comments
+    List<CommentDto> Comments,
+    [property: Range(0, int.MaxValue, ErrorMessage = "View count must be greater than or equal 0.")]
+    long ViewCount
 );

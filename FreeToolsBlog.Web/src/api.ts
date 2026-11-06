@@ -15,6 +15,7 @@ export interface PostRecord {
   coverImageUrl: string | null;
   createdAt: string;
   updatedAt: string;
+  viewCount: number;
   userId?: number;
   userName?: string;
   user?: { username?: string } | null;

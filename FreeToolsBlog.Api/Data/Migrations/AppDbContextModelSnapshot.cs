@@ -81,6 +81,9 @@ namespace FreeToolsBlog.Api.Data.Migrations
                     b.Property<int>("UserId")
                         .HasColumnType("INTEGER");
 
+                    b.Property<long>("ViewCount")
+                        .HasColumnType("INTEGER");
+
                     b.HasKey("Id");
 
                     b.HasIndex("Slug")

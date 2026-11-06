@@ -11,6 +11,7 @@ public class Post
     public string? CoverImageUrl { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    public long ViewCount { get; set; } = 0;
 
     // Foreign Key: 1 User
     public int UserId { get; set; }

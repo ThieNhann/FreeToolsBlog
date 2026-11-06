@@ -23,6 +23,10 @@ function formatDate(value: string) {
   return Number.isNaN(date.getTime()) ? "" : new Intl.DateTimeFormat("en-US", { day: "numeric", month: "long", year: "numeric" }).format(date);
 }
 
+function formatViewCount(value: number) {
+  return `${new Intl.NumberFormat("en-US").format(value)} ${value === 1 ? "view" : "views"}`;
+}
+
 function errorMessage(error: unknown, fallback: string) {
   return error instanceof Error && error.message ? error.message : fallback;
 }
@@ -124,7 +128,7 @@ function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
         <div className="section-heading"><h2>Posts</h2><span>{loading ? "Updating" : ""}</span></div>
         {loading ? <LoadingRows /> : error ? <ErrorNotice onRetry={() => { setLoading(true); setError(""); setLoadRetry((current) => current + 1); }}>{error}</ErrorNotice> : published.length ? <div className="post-list">
           {published.map((post, index) => <article className={`post-row ${index === 0 ? "post-row-featured" : ""}`} key={post.id}>
-            <div className="post-meta"><time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time><span>POST</span></div>
+            <div className="post-meta"><time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time><span>POST</span><span>{formatViewCount(post.viewCount)}</span></div>
             <div className="post-copy">
               <h3><SiteLink to={`/posts/${encodeURIComponent(post.slug)}`} navigate={navigate}>{post.title}</SiteLink></h3>
               <p>{post.summary}</p>
@@ -235,7 +239,7 @@ function PostDetail({ slug, navigate }: { slug: string; navigate: (path: string)
         <header className="article-header">
           <h1>{post.title}</h1>
           <p className="article-summary">{post.summary}</p>
-          <p className="article-byline">{post.userName ? `By ${post.userName} · ` : ""}{formatDate(post.updatedAt || post.createdAt)}</p>
+          <p className="article-byline">{post.userName ? `By ${post.userName} · ` : ""}{formatDate(post.updatedAt || post.createdAt)} · {formatViewCount(post.viewCount)}</p>
         </header>
         {post.coverImageUrl && <img className="article-cover" src={post.coverImageUrl} alt={`Cover image: ${post.title}`} onError={(event) => { event.currentTarget.hidden = true; }} />}
         <PostBody content={post.content} />

@@ -2,6 +2,7 @@ using FreeToolsBlog.Api.Data;
 using FreeToolsBlog.Api.Dtos;
 using FreeToolsBlog.Api.Models;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace FreeToolsBlog.Api.Endpoints;
 
@@ -51,29 +52,47 @@ public static class PublicEndpoints
         });
 
         // GET /posts/{slug}
-        group.MapGet("/{slug}", async (string slug, AppDbContext dbContext) =>
+        group.MapGet("/{slug}", async (string slug, AppDbContext dbContext, IMemoryCache cache, HttpContext httpContext) =>
         {
             var post = await dbContext.Posts
                                         .Where(post => post.Slug == slug)
-                                        .Select(post => new PostSummaryDto(
-                                            post.Id,
-                                            post.Title,
-                                            post.Slug,
-                                            post.Summary,
-                                            post.Content,
-                                            post.CoverImageUrl,
-                                            post.CreatedAt,
-                                            post.UpdatedAt,
-                                            post.User.Username,
-                                            post.Comments
-                                                .OrderBy(comment => comment.CreatedAt)
-                                                .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
-                                                .ToList()
-                                        ))
-                                        .AsNoTracking()
+                                        .Include(post => post.User)
+                                        .Include(post => post.Comments)
                                         .FirstOrDefaultAsync();
 
-            return post is null ? Results.NotFound() : Results.Ok(post);
+            if (post is null)
+            {
+                return Results.NotFound();
+            }
+
+            var clientIp = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
+            string cacheKey = $"view-post-{post.Id}-{clientIp}";
+
+            if (!cache.TryGetValue(cacheKey, out _))
+            {
+                post.ViewCount++;
+                await dbContext.SaveChangesAsync();
+                cache.Set(cacheKey, true, TimeSpan.FromMinutes(30));
+            }
+
+            var response = new PostSummaryDto(
+                post.Id,
+                post.Title,
+                post.Slug,
+                post.Summary,
+                post.Content,
+                post.CoverImageUrl,
+                post.CreatedAt,
+                post.UpdatedAt,
+                post.User.Username,
+                post.Comments
+                    .OrderBy(comment => comment.CreatedAt)
+                    .Select(comment => new CommentDto(comment.Name, comment.Content, comment.CreatedAt))
+                    .ToList(),
+                post.ViewCount
+            );
+
+            return Results.Ok(response);
         });
 
         // GET /posts/
