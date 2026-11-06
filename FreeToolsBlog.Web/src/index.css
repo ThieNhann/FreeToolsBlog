@@ -1,0 +1,61 @@
+@import "@fontsource/literata/latin-400.css";
+@import "@fontsource/literata/vietnamese-400.css";
+@import "@fontsource/literata/latin-500.css";
+@import "@fontsource/literata/vietnamese-500.css";
+@import "@fontsource/literata/latin-600.css";
+@import "@fontsource/literata/vietnamese-600.css";
+@import "@fontsource/manrope/latin-400.css";
+@import "@fontsource/manrope/vietnamese-400.css";
+@import "@fontsource/manrope/latin-500.css";
+@import "@fontsource/manrope/vietnamese-500.css";
+@import "@fontsource/manrope/latin-600.css";
+@import "@fontsource/manrope/vietnamese-600.css";
+@import "@fontsource/manrope/latin-700.css";
+@import "@fontsource/manrope/vietnamese-700.css";
+@import "tailwindcss";
+
+@theme {
+  --color-paper: #f6f3eb;
+  --color-ink: #20211f;
+  --color-olive: #4c5948;
+  --color-editorial-red: #913d2b;
+  --color-rule: #b7b3a8;
+  --font-serif: "Literata", Georgia, serif;
+  --font-sans: "Manrope", system-ui, sans-serif;
+}
+
+:root {
+  font-family: "Manrope", system-ui, sans-serif;
+  color: #20211f;
+  background: #f6f3eb;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-optical-sizing: auto;
+  font-weight: 400;
+  color-scheme: light;
+  scrollbar-color: #8c8b81 #e8e5dc;
+}
+
+* { box-sizing: border-box; }
+
+html { min-width: 320px; scroll-behavior: smooth; }
+
+body { min-width: 320px; min-height: 100vh; margin: 0; }
+
+button, input, textarea, select { font: inherit; }
+
+button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
+
+button { color: inherit; }
+
+a { color: inherit; text-underline-offset: 0.18em; }
+
+::selection { color: #fffdf8; background: #763520; }
+
+:focus-visible { outline: 3px solid #8c3b28; outline-offset: 3px; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { scroll-behavior: auto !important; animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+}

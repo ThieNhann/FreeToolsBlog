@@ -1,0 +1,17 @@
+{
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "cream-palette",
+        "value": "*",
+        "files": [
+          ".impeccable/mocks/decision/daily-index.html"
+        ],
+        "createdAt": "2026-11-06T16:45:11.602Z",
+        "reason": "Agent: The selected Daily Index sketch intentionally uses the product paper color; the shipped token is documented in DESIGN.md."
+      }
+    ]
+  }
+}

@@ -1,0 +1,225 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-11-06T16:33:28Z",
+  "title": "Design System: FreeToolsBlog",
+  "extensions": {
+    "colorMeta": {
+      "paper": {
+        "role": "neutral",
+        "displayName": "Warm Paper",
+        "canonical": "#f6f3eb",
+        "tonalRamp": [
+          "#27231d",
+          "#413d36",
+          "#5c584f",
+          "#777369",
+          "#938f84",
+          "#afab9f",
+          "#cbc7bb",
+          "#e8e4d8"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Deep Ink",
+        "canonical": "#20211f",
+        "tonalRamp": [
+          "#181919",
+          "#30312f",
+          "#494a47",
+          "#626360",
+          "#7b7c79",
+          "#959592",
+          "#afb0ad",
+          "#c9cac7"
+        ]
+      },
+      "olive": {
+        "role": "secondary",
+        "displayName": "Muted Olive",
+        "canonical": "#4c5948",
+        "tonalRamp": [
+          "#1b211a",
+          "#30372e",
+          "#454d42",
+          "#5a6357",
+          "#707a6d",
+          "#879283",
+          "#9faa9b",
+          "#b7c2b2"
+        ]
+      },
+      "editorial-red": {
+        "role": "primary",
+        "displayName": "Editorial Red-Brown",
+        "canonical": "#913d2b",
+        "tonalRamp": [
+          "#35150f",
+          "#51251c",
+          "#6d3427",
+          "#894332",
+          "#a75a46",
+          "#c17b68",
+          "#d9a196",
+          "#edc9c0"
+        ]
+      },
+      "rule": {
+        "role": "neutral",
+        "displayName": "Rule Gray",
+        "canonical": "#b7b3a8",
+        "tonalRamp": [
+          "#282721",
+          "#413f39",
+          "#5b5952",
+          "#75736c",
+          "#908e86",
+          "#abaa9f",
+          "#c6c4b8",
+          "#e2dfd4"
+        ]
+      },
+      "paper-white": {
+        "role": "neutral",
+        "displayName": "Paper White",
+        "canonical": "#fffdf8",
+        "tonalRamp": [
+          "#292722",
+          "#43413b",
+          "#5e5b55",
+          "#79766f",
+          "#95928a",
+          "#b1aea6",
+          "#cecbc2",
+          "#ebe8df"
+        ]
+      },
+      "body-muted": {
+        "role": "neutral",
+        "displayName": "Muted Body Gray",
+        "canonical": "#50564f",
+        "tonalRamp": [
+          "#1c1e1b",
+          "#343733",
+          "#4c504a",
+          "#656963",
+          "#7f837d",
+          "#999d97",
+          "#b4b8b2",
+          "#cfd3cd"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Editorial Display",
+        "purpose": "Masthead wordmark."
+      },
+      "headline": {
+        "displayName": "Page Headline",
+        "purpose": "Index, article, and primary page headings."
+      },
+      "body": {
+        "displayName": "Interface Body",
+        "purpose": "Descriptions, summaries, and interface copy."
+      },
+      "article": {
+        "displayName": "Article Text",
+        "purpose": "Long-form post content."
+      },
+      "label": {
+        "displayName": "Interface Label",
+        "purpose": "Buttons and form labels."
+      }
+    },
+    "shadows": [],
+    "motion": [
+      {
+        "name": "button-color",
+        "value": "160ms ease-out",
+        "purpose": "Button color, text, and border transitions."
+      },
+      {
+        "name": "icon-nudge",
+        "value": "180ms ease-out",
+        "purpose": "Small horizontal arrow movement on hover."
+      },
+      {
+        "name": "quiet-pulse",
+        "value": "1.4s ease-in-out alternate",
+        "purpose": "Loading placeholder opacity pulse; reduced-motion disables animation."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "tablet",
+        "value": "760px"
+      },
+      {
+        "name": "small-mobile",
+        "value": "440px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "Main admin and form action.",
+      "html": "<button class=\"ds-button\" type=\"button\">Save changes <span aria-hidden=\"true\">→</span></button>",
+      "css": ".ds-button { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 11px; border: 1px solid transparent; border-radius: 4px; padding: 10px 15px; background: #202a23; color: #fffdf8; font: 700 12px/1.3 Manrope, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out; } .ds-button:hover { background: #3f5143; } .ds-button:focus-visible { outline: 3px solid #8c3b28; outline-offset: 3px; } .ds-button:active { background: #3f5143; }"
+    },
+    {
+      "name": "Quiet Button",
+      "kind": "button",
+      "refersTo": "button-quiet",
+      "description": "Secondary or cancel action.",
+      "html": "<button class=\"ds-button-quiet\" type=\"button\">Cancel</button>",
+      "css": ".ds-button-quiet { display: inline-flex; min-height: 42px; align-items: center; justify-content: center; gap: 11px; border: 1px solid #96958c; border-radius: 4px; padding: 10px 15px; background: transparent; color: #303b32; font: 700 12px/1.3 Manrope, system-ui, sans-serif; cursor: pointer; transition: background-color 160ms ease-out, color 160ms ease-out, border-color 160ms ease-out; } .ds-button-quiet:hover { background: #e9e6dd; } .ds-button-quiet:focus-visible { outline: 3px solid #8c3b28; outline-offset: 3px; } .ds-button-quiet:active { background: #e9e6dd; }"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "text-field",
+      "description": "Admin and comment form field.",
+      "html": "<label class=\"ds-field\"><span>Name</span><input type=\"text\" value=\"\" /></label>",
+      "css": ".ds-field { display: grid; gap: 7px; color: #303830; font: 700 12px Manrope, system-ui, sans-serif; } .ds-field input { width: 100%; min-height: 42px; border: 1px solid #a9a69c; border-radius: 4px; padding: 10px 11px; background: #fffdf8; color: #20211f; font: 400 13px/1.5 Manrope, system-ui, sans-serif; } .ds-field input:focus { border-color: #74402e; outline: 2px solid #74402e; outline-offset: 1px; } .ds-field input:focus-visible { outline: 3px solid #8c3b28; outline-offset: 3px; }"
+    },
+    {
+      "name": "Masthead Navigation",
+      "kind": "nav",
+      "description": "Centered editorial masthead and primary links.",
+      "html": "<header class=\"ds-masthead\"><p class=\"ds-note\">Công cụ miễn phí</p><a class=\"ds-wordmark\" href=\"#\">FreeToolsBlog</a><nav><a href=\"#\">Bài viết</a><a href=\"#\">Quản trị</a></nav></header>",
+      "css": ".ds-masthead { display: flex; flex-direction: column; align-items: center; border-block: 3px double #292b28; padding: 11px 0 16px; text-align: center; } .ds-note { order: 1; margin: 0 0 3px; color: #4c5948; font: 700 11px/1.6 Manrope, system-ui, sans-serif; letter-spacing: .13em; text-transform: uppercase; } .ds-wordmark { order: 2; color: #20211f; font: 600 clamp(30px, 4vw, 42px)/1.2 Literata, Georgia, serif; letter-spacing: -.035em; text-decoration: none; } .ds-masthead nav { order: 3; display: flex; justify-content: center; gap: 30px; margin-top: 13px; font: 600 12px Manrope, system-ui, sans-serif; } .ds-masthead nav a { padding: 3px 0; color: #3f4940; text-decoration: none; } .ds-masthead nav a:hover { color: #913d2b; text-decoration: underline; text-underline-offset: 5px; } .ds-masthead a:focus-visible { outline: 3px solid #8c3b28; outline-offset: 3px; }"
+    },
+    {
+      "name": "Ruled Post Row",
+      "kind": "custom",
+      "description": "Index entry with a metadata rail and serif title.",
+      "html": "<article class=\"ds-post-row\"><div class=\"ds-meta\">6 tháng 11, 2026</div><div><h2><a href=\"#\">A practical guide to useful tools</a></h2><p>A short summary set beneath the story title.</p></div></article>",
+      "css": ".ds-post-row { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 26px; border-bottom: 1px solid #c2beb3; padding: 25px 0 27px; } .ds-meta { padding-top: 5px; color: #50564f; font: 400 11px/1.55 Manrope, system-ui, sans-serif; } .ds-post-row h2 { margin: 0; color: #20211f; font: 500 25px/1.28 Literata, Georgia, serif; letter-spacing: -.025em; } .ds-post-row h2 a { color: inherit; text-decoration: none; } .ds-post-row h2 a:hover { color: #913d2b; text-decoration: underline; text-underline-offset: 4px; } .ds-post-row p { max-width: 66ch; margin: 8px 0 0; color: #50564f; font: 400 14px/1.7 Manrope, system-ui, sans-serif; } @media (max-width: 760px) { .ds-post-row { grid-template-columns: 1fr; gap: 8px; padding-block: 21px 23px; } .ds-meta { padding: 0; } }"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Daily Index",
+    "overview": "Newspaper wayfinding frames the reading experience: a centered masthead, double rules, compact metadata, and ruled story rows organize the index without competing with the posts. Literata brings the editorial voice to titles and article copy; Manrope handles navigation, metadata, and controls with a clear, contemporary counterpoint.\n\nThe public pages stay quiet and legible, with warm paper, dark ink, olive details, and a restrained red-brown accent. Admin screens use the same palette and type system, adding compact controls and status markers for task clarity. The source defines a light appearance, visible keyboard focus, and reduced-motion handling.",
+    "keyCharacteristics": [
+      "Newspaper masthead and double-rule framing",
+      "Warm paper surfaces, ink text, olive wayfinding, and sparing red-brown accents",
+      "Serif-led headlines and article reading, sans-serif interface labels",
+      "Flat, ruled layouts with minimal rounded control surfaces"
+    ],
+    "rules": [],
+    "dos": [
+      "Do keep article text in the narrow serif reading column and preserve its generous line-height.",
+      "Do use rules, alignment, and whitespace to organize public content.",
+      "Do keep focus indicators visible and honor reduced-motion preferences."
+    ],
+    "donts": [
+      "Don't add heavy shadows to surfaces; depth is carried by tonal contrast and rules.",
+      "Don't turn public post rows into raised, rounded cards.",
+      "Don't introduce additional font families or accent colors without updating the established palette."
+    ]
+  }
+}\n

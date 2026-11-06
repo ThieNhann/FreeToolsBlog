@@ -8,6 +8,7 @@ using Microsoft.IdentityModel.Tokens;
 var builder = WebApplication.CreateBuilder(args);
 
 var jwtSettings = builder.Configuration.GetSection("Jwt");
+var frontendAllowedOrigins = builder.Configuration.GetSection("Frontend:AllowedOrigins").Get<string[]>() ?? [];
 var configuredSecretKey = jwtSettings["SecretKey"];
 if (string.IsNullOrWhiteSpace(configuredSecretKey) || Encoding.UTF8.GetByteCount(configuredSecretKey) < 32)
 {
@@ -42,10 +43,19 @@ builder.Services.AddAuthorization(options =>
     options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
 });
 
+builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
+{
+    if (frontendAllowedOrigins.Length > 0)
+    {
+        policy.WithOrigins(frontendAllowedOrigins).AllowAnyHeader().AllowAnyMethod();
+    }
+}));
+
 builder.Services.AddValidation();
 builder.AddAppDb();
 var app = builder.Build();
 
+app.UseCors("Frontend");
 app.UseAuthentication();
 app.UseAuthorization();
 
