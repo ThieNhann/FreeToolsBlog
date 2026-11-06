@@ -1,5 +1,9 @@
-import { useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import DOMPurify from "dompurify";
 import { ApiError, api, findPublishedPost, userIdFromToken, type CommentRecord, type Page, type PostInput, type PostRecord } from "./api";
+import { isRichTextHtml, toEditorHtml } from "./postContent";
+
+const RichTextEditor = lazy(() => import("./RichTextEditor"));
 
 const TOKEN_KEY = "freetoolsblog-admin-token";
 const PAGE_SIZE = 10;
@@ -156,6 +160,9 @@ function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
 }
 
 function PostBody({ content }: { content: string }) {
+  if (isRichTextHtml(content)) {
+    return <div className="article-body" dangerouslySetInnerHTML={{ __html: DOMPurify.sanitize(content) }} />;
+  }
   const paragraphs = content.split(/\r?\n\s*\r?\n/).filter((paragraph) => paragraph.trim());
   return <div className="article-body">{paragraphs.map((paragraph, index) => <p key={index}>
     {paragraph.split(/\r?\n/).map((line, lineIndex) => <span key={lineIndex}>{lineIndex > 0 && <br />}{line}</span>)}
@@ -456,16 +463,31 @@ function PostEditor({ post, error, onSave, onCancel }: { post?: PostRecord; erro
   const [slug, setSlug] = useState(post?.slug ?? "");
   const [slugTouched, setSlugTouched] = useState(Boolean(post));
   const [summary, setSummary] = useState(post?.summary ?? "");
-  const [content, setContent] = useState(post?.content ?? "");
+  const [content, setContent] = useState(() => DOMPurify.sanitize(toEditorHtml(post?.content ?? "")));
+  const [contentIsEmpty, setContentIsEmpty] = useState(() => !post?.content.trim());
+  const [contentError, setContentError] = useState("");
   const [coverImageUrl, setCoverImageUrl] = useState(post?.coverImageUrl ?? "");
   const [isPublished, setIsPublished] = useState(Boolean(post?.isPublished));
   const [saving, setSaving] = useState(false);
+  const updateContent = useCallback((value: string, isEmpty: boolean) => {
+    setContent(value);
+    setContentIsEmpty(isEmpty);
+    setContentError("");
+  }, []);
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    if (contentIsEmpty) {
+      setContentError("Post content is required.");
+      return;
+    }
+    setContentError("");
     setSaving(true);
-    await onSave(post, { title: title.trim(), slug: slug.trim(), summary: summary.trim(), content: content.trim(), coverImageUrl: coverImageUrl.trim() || null, isPublished });
-    setSaving(false);
+    try {
+      await onSave(post, { title: title.trim(), slug: slug.trim(), summary: summary.trim(), content, coverImageUrl: coverImageUrl.trim() || null, isPublished });
+    } finally {
+      setSaving(false);
+    }
   }
 
   return <form className="admin-form editor-form" onSubmit={(event) => void submit(event)}>
@@ -484,8 +506,11 @@ function PostEditor({ post, error, onSave, onCancel }: { post?: PostRecord; erro
         <label className="field-label" htmlFor="post-summary">Summary <span>{summary.length}/500</span></label>
         <textarea id="post-summary" name="summary" required maxLength={500} rows={3} value={summary} onChange={(event) => setSummary(event.target.value)} />
         <label className="field-label" htmlFor="post-content">Content</label>
-        <textarea id="post-content" name="content" required rows={16} value={content} onChange={(event) => setContent(event.target.value)} />
-        <p className="field-hint">Separate paragraphs with a blank line.</p>
+        <Suspense fallback={<div className="rich-text-loading" aria-busy="true">Loading editor…</div>}>
+          <RichTextEditor initialContent={content} disabled={saving} onChange={updateContent} />
+        </Suspense>
+        {contentError && <p className="field-error" role="alert">{contentError}</p>}
+        <p className="field-hint">Select text, then choose a size or formatting style.</p>
       </div>
       <aside className="editor-aside">
         <div className="editor-status">
