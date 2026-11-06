@@ -38,28 +38,28 @@ public static class DataExtension
                     {
                         new Post
                         {
-                            Title = "5 công cụ trực tuyến miễn phí nên thử",
-                            Slug = "5-cong-cu-truc-tuyen-mien-phi",
-                            Summary = "Một số công cụ web miễn phí giúp xử lý công việc hằng ngày nhanh hơn.",
-                            Content = "Bài viết giới thiệu các công cụ trực tuyến hữu ích cho công việc và học tập.",
+                            Title = "5 Free Online Tools Worth Trying",
+                            Slug = "5-free-online-tools-worth-trying",
+                            Summary = "A handful of free web tools that make everyday tasks faster.",
+                            Content = "Explore useful online tools for work and learning.",
                             IsPublished = true,
                             User = admin
                         },
                         new Post
                         {
-                            Title = "Cách tối ưu ảnh trước khi đăng lên website",
-                            Slug = "cach-toi-uu-anh-truoc-khi-dang-website",
-                            Summary = "Giảm dung lượng ảnh để website tải nhanh mà vẫn giữ chất lượng tốt.",
-                            Content = "Hãy chọn đúng định dạng, điều chỉnh kích thước ảnh và nén ảnh trước khi tải lên.",
+                            Title = "How to Optimize Images Before Publishing on Your Website",
+                            Slug = "how-to-optimize-images-before-publishing",
+                            Summary = "Reduce image file sizes so your website loads quickly without sacrificing quality.",
+                            Content = "Choose the right format, resize images, and compress them before uploading.",
                             IsPublished = true,
                             User = admin
                         },
                         new Post
                         {
-                            Title = "Mẹo quản lý công việc hiệu quả",
-                            Slug = "meo-quan-ly-cong-viec-hieu-qua",
-                            Summary = "Một vài cách đơn giản để sắp xếp công việc và tập trung tốt hơn.",
-                            Content = "Chia nhỏ đầu việc, ưu tiên việc quan trọng và dành thời gian nghỉ hợp lý.",
+                            Title = "Tips for Managing Your Work More Effectively",
+                            Slug = "tips-for-managing-your-work-more-effectively",
+                            Summary = "Simple ways to organize tasks and stay focused.",
+                            Content = "Break tasks into smaller steps, prioritize important work, and schedule regular breaks.",
                             User = admin
                         }
                     };
@@ -75,9 +75,9 @@ public static class DataExtension
                     if (posts.Count > 0)
                     {
                         context.AddRange(
-                            new Comment { Name = "Minh Anh", Content = "Bài viết rất hữu ích, cảm ơn bạn!", Post = posts[0] },
-                            new Comment { Name = "Hoàng", Content = "Mình sẽ thử các công cụ này.", Post = posts[0] },
-                            new Comment { Name = "Lan", Content = "Hướng dẫn dễ hiểu và áp dụng được.", Post = posts[^1] }
+                            new Comment { Name = "Alex", Content = "This was really helpful. Thank you!", Post = posts[0] },
+                            new Comment { Name = "Jordan", Content = "I'll give these tools a try.", Post = posts[0] },
+                            new Comment { Name = "Taylor", Content = "An easy-to-follow and practical guide.", Post = posts[^1] }
                         );
                         context.SaveChanges();
                     }
