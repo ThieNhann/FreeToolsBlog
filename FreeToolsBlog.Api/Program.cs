@@ -1,8 +1,12 @@
+using System.Globalization;
+using System.Threading.RateLimiting;
 using System.Text;
 using FreeToolsBlog.Api.Data;
 using FreeToolsBlog.Api.Endpoints;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.RateLimiting;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,13 +54,61 @@ builder.Services.AddCors(options => options.AddPolicy("Frontend", policy =>
         policy.WithOrigins(frontendAllowedOrigins).AllowAnyHeader().AllowAnyMethod();
     }
 }));
+builder.Services.AddRateLimiter(options =>
+{
+    options.OnRejected = async (context, cancellationToken) =>
+    {
+        var response = context.HttpContext.Response;
+        response.StatusCode = StatusCodes.Status429TooManyRequests;
+        if (context.Lease.TryGetMetadata(MetadataName.RetryAfter, out var retryAfter))
+        {
+            response.Headers.RetryAfter = Math.Max(1, (int)Math.Ceiling(retryAfter.TotalSeconds))
+                .ToString(CultureInfo.InvariantCulture);
+        }
+
+        var problem = new ProblemDetails
+        {
+            Status = StatusCodes.Status429TooManyRequests,
+            Title = "Too many requests.",
+            Detail = "Please wait before trying again.",
+            Instance = context.HttpContext.Request.Path
+        };
+        problem.Extensions["traceId"] = context.HttpContext.TraceIdentifier;
+        await response.WriteAsJsonAsync(
+            problem,
+            options: null,
+            contentType: "application/problem+json",
+            cancellationToken: cancellationToken);
+    };
+
+    options.AddPolicy("public-read", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown",
+            _ => CreateFixedWindowOptions(120, TimeSpan.FromMinutes(1))));
+    options.AddPolicy("login", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown",
+            _ => CreateFixedWindowOptions(5, TimeSpan.FromMinutes(5))));
+    options.AddPolicy("comment-write", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.Connection.RemoteIpAddress?.MapToIPv6().ToString() ?? "unknown",
+            _ => CreateFixedWindowOptions(3, TimeSpan.FromMinutes(1))));
+    options.AddPolicy("admin-write", context =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            context.User.FindFirstValue(ClaimTypes.NameIdentifier)
+                ?? context.Connection.RemoteIpAddress?.MapToIPv6().ToString()
+                ?? "unknown",
+            _ => CreateFixedWindowOptions(60, TimeSpan.FromMinutes(1))));
+});
 builder.Services.AddMemoryCache();
 builder.Services.AddValidation();
 builder.AddAppDb();
 var app = builder.Build();
 
+app.UseRouting();
 app.UseCors("Frontend");
 app.UseAuthentication();
+app.UseRateLimiter();
 app.UseAuthorization();
 
 app.MigrateDb();
@@ -65,3 +117,11 @@ app.MapPublicEndpoints();
 app.MapAdminEndpoints();
 
 app.Run();
+
+static FixedWindowRateLimiterOptions CreateFixedWindowOptions(int permitLimit, TimeSpan window) => new()
+{
+    PermitLimit = permitLimit,
+    Window = window,
+    QueueLimit = 0,
+    AutoReplenishment = true
+};

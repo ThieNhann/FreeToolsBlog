@@ -6,6 +6,7 @@ using FreeToolsBlog.Api.Dtos;
 using FreeToolsBlog.Api.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.Data;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 
@@ -47,9 +48,11 @@ public static class AdminEndpoints
                 signingCredentials: credentials);
 
             return Results.Ok(new { accessToken = new JwtSecurityTokenHandler().WriteToken(token) });
-        }).AllowAnonymous();
+        }).AllowAnonymous().RequireRateLimiting("login");
 
-        var group = app.MapGroup("/admin/posts").RequireAuthorization("AdminOnly");
+        var group = app.MapGroup("/admin/posts")
+            .RequireAuthorization("AdminOnly")
+            .RequireRateLimiting("admin-write");
         // GET /admin/posts
         // GET /admin/posts/{id}
 

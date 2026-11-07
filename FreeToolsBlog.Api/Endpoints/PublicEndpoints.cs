@@ -3,6 +3,7 @@ using FreeToolsBlog.Api.Dtos;
 using FreeToolsBlog.Api.Models;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace FreeToolsBlog.Api.Endpoints;
 
@@ -66,7 +67,7 @@ public static class PublicEndpoints
 
             var response = new PagedResponse<Post>(data, validFilter.PageNumber, validFilter.PageSize, totalRecords);
             return Results.Ok(response);
-        });
+        }).RequireRateLimiting("public-read");
 
         // GET /posts/{slug}
         group.MapGet("/{slug}", async (string slug, AppDbContext dbContext, IMemoryCache cache, HttpContext httpContext) =>
@@ -110,7 +111,7 @@ public static class PublicEndpoints
             );
 
             return Results.Ok(response);
-        });
+        }).RequireRateLimiting("public-read");
 
         // GET /posts/
         group.MapGet("/{postId:int}/comments/", async (
@@ -137,7 +138,7 @@ public static class PublicEndpoints
 
             var response = new PagedResponse<Comment>(data, validFilter.PageNumber, validFilter.PageSize, totalRecords);
             return Results.Ok(response);
-        });
+        }).RequireRateLimiting("public-read");
 
         // POST /posts/{postId}/comments
         group.MapPost("/{postId:int}/comments", async (int postId, CreateCommentDto newComment, AppDbContext dbContext) =>
@@ -160,6 +161,6 @@ public static class PublicEndpoints
             await dbContext.SaveChangesAsync();
 
             return Results.Created($"/posts/{post.Slug}", new CommentDto(comment.Name, comment.Content, comment.CreatedAt));
-        });
+        }).RequireRateLimiting("comment-write");
     }
 }
