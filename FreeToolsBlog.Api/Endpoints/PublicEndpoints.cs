@@ -61,6 +61,7 @@ public static class PublicEndpoints
             var data = await (string.IsNullOrWhiteSpace(search)
                 ? posts.OrderBy(post => post.Id)
                 : posts.OrderByDescending(post => post.Id))
+                .Where(post => post.IsPublished == true)
                 .Skip(skip)
                 .Take(validFilter.PageSize)
                 .ToListAsync();
