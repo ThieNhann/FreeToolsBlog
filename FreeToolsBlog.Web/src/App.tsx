@@ -32,6 +32,13 @@ function formatViewCount(value: number) {
 }
 
 function errorMessage(error: unknown, fallback: string) {
+  if (error instanceof ApiError) {
+    if (error.status === 429 && error.retryAfterSeconds !== undefined) {
+      const seconds = error.retryAfterSeconds;
+      return `${error.message} Please try again in ${seconds} second${seconds === 1 ? "" : "s"}.`;
+    }
+    return error.message || fallback;
+  }
   return error instanceof Error && error.message ? error.message : fallback;
 }
 

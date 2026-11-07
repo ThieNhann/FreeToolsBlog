@@ -40,12 +40,22 @@ export interface PostInput {
 
 export class ApiError extends Error {
   readonly status: number;
+  readonly retryAfterSeconds?: number;
 
-  constructor(message: string, status: number) {
+  constructor(message: string, status: number, retryAfterSeconds?: number) {
     super(message);
     this.status = status;
+    this.retryAfterSeconds = retryAfterSeconds;
     this.name = "ApiError";
   }
+}
+
+function parseRetryAfter(value: string | null): number | undefined {
+  if (!value) return undefined;
+  const seconds = Number(value);
+  if (Number.isFinite(seconds) && seconds >= 0) return Math.ceil(seconds);
+  const retryAt = Date.parse(value);
+  return Number.isNaN(retryAt) ? undefined : Math.max(0, Math.ceil((retryAt - Date.now()) / 1000));
 }
 
 const apiBase = (import.meta.env.VITE_API_BASE_URL || (import.meta.env.DEV ? "http://localhost:5175" : "")).replace(/\/$/, "");
@@ -83,7 +93,7 @@ async function request<T>(path: string, options: RequestInit = {}, token?: strin
       : typeof record?.detail === "string" ? record.detail
         : typeof record?.title === "string" ? record.title
           : errors || (typeof body === "string" && body) || `Request failed (${response.status}).`;
-    throw new ApiError(message, response.status);
+    throw new ApiError(message, response.status, parseRetryAfter(response.headers.get("Retry-After")));
   }
 
   return body as T;
