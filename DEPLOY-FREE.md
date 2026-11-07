@@ -309,7 +309,7 @@ Frontend là SPA. Cloudflare Pages hỗ trợ fallback cho SPA mặc định khi
 
 - Không commit `Jwt:SecretKey`, password admin, Neon credentials hoặc `.env.local`.
 - Đổi mọi mật khẩu demo trước khi public.
-- Frontend README ghi nhận public API hiện có thể trả về draft posts; việc frontend ẩn draft không bảo vệ nội dung. Không đăng nội dung nhạy cảm dưới dạng draft cho đến khi API lọc draft ở phía server.
+- API chỉ trả draft cho request có bearer token hợp lệ của Admin; guest chỉ thấy bài đã publish. Không đưa dữ liệu nhạy cảm lên một website công khai chỉ vì bài đang ở trạng thái draft.
 - CORS chỉ cho phép đúng domain frontend; CORS không thay thế authentication/authorization.
 - Free hosting phù hợp demo, không cam kết SLA, dữ liệu dự phòng hay thời gian phản hồi ổn định. Sao lưu dữ liệu Neon nếu nội dung bắt đầu có giá trị.
 

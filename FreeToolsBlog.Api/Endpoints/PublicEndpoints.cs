@@ -37,9 +37,15 @@ public static class PublicEndpoints
         group.MapGet("/", async (
             [AsParametersAttribute] PaginationParams validFilter,
             AppDbContext dbContext,
+            HttpContext httpContext,
             string? search = null) =>
         {
             var posts = dbContext.Posts.AsNoTracking();
+            if (!httpContext.User.IsInRole("Admin"))
+            {
+                posts = posts.Where(post => post.IsPublished);
+            }
+
             if (!string.IsNullOrWhiteSpace(search))
             {
                 search = search.Trim();
@@ -50,9 +56,9 @@ public static class PublicEndpoints
 
                 var escapedSearch = search.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
                 var pattern = $"%{escapedSearch}%";
-                posts = posts.Where(post => post.IsPublished &&
-                    (EF.Functions.Like(post.Title, pattern, "\\") ||
-                     EF.Functions.Like(post.Summary, pattern, "\\")));
+                posts = posts.Where(post =>
+                    EF.Functions.Like(post.Title, pattern, "\\") ||
+                    EF.Functions.Like(post.Summary, pattern, "\\"));
             }
 
             var skip = (validFilter.PageNumber - 1) * validFilter.PageSize;
@@ -61,7 +67,6 @@ public static class PublicEndpoints
             var data = await (string.IsNullOrWhiteSpace(search)
                 ? posts.OrderBy(post => post.Id)
                 : posts.OrderByDescending(post => post.Id))
-                .Where(post => post.IsPublished == true)
                 .Skip(skip)
                 .Take(validFilter.PageSize)
                 .ToListAsync();

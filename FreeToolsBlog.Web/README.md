@@ -20,10 +20,10 @@ Set `VITE_API_BASE_URL` to the API origin when it differs from `http://localhost
 
 ## API behavior the interface relies on
 
-- Public post listing uses `GET /posts?pageNumber={n}&pageSize={n}`; page size is capped at 50. The API includes drafts in that response, so the reader interface filters out records whose `isPublished` value is false. This client-side filter does not secure draft content; the current API exposes that content publicly.
-- Public post detail uses `GET /posts/{slug}`. It currently returns a post by slug without checking `isPublished`; the interface checks the post list before rendering a direct article route, but the API itself still exposes the draft response. Enforce publication checks in the API before using it for sensitive drafts.
+- Post listing uses `GET /posts?pageNumber={n}&pageSize={n}`; page size is capped at 50. Guests receive published posts only. An authenticated Admin bearer token also allows the admin interface to list drafts.
+- Post detail uses `GET /posts/{slug}` and returns `404` for drafts, including when requested directly by slug.
 - Comments use `GET /posts/{postId}/comments` and `POST /posts/{postId}/comments`.
 - Admin sign-in uses `POST /login`; post create, update, and delete use `/admin/posts`. Create requests need the numeric user ID from the signed JWT's name-identifier claim because the API has no current-user or admin-list endpoint.
 - New posts are created as drafts by the API. Publishing an existing post uses the update endpoint.
 
-The API currently exposes no filtering or search endpoint and no admin-only post-list endpoint. The frontend does not add API routes or change the database schema.
+The API currently has no separate admin-only post-list endpoint; the existing listing includes drafts only for authenticated Admin requests. The frontend does not add API routes or change the database schema.
