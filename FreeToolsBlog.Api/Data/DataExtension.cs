@@ -23,9 +23,9 @@ public static class DataExtension
             throw new InvalidOperationException("Configure both Admin:Username and Admin:Password to bootstrap an admin account.");
         }
 
-        builder.Services.AddSqlite<AppDbContext>(
-            connString,
-            optionsAction: options => options.UseSeeding((context, _) =>
+        builder.Services.AddDbContext<AppDbContext>(options =>
+            options.UseNpgsql(connString)
+                .UseSeeding((context, _) =>
             {
                 if (!context.Set<User>().Any())
                 {
@@ -91,7 +91,7 @@ public static class DataExtension
                         admin = new User
                         {
                             Username = adminUsername,
-                            Email = $"{adminUsername}@freetoolsblog.local",
+                            Email = $"{adminUsername}@gmail.com",
                             IsAdmin = true
                         };
                         admin.PasswordHash = new PasswordHasher<User>().HashPassword(admin, adminPassword!);
