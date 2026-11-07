@@ -77,7 +77,7 @@ public static class PublicEndpoints
                                         .Include(post => post.Comments)
                                         .FirstOrDefaultAsync();
 
-            if (post is null)
+            if (post is null || post.IsPublished == false)
             {
                 return Results.NotFound();
             }
@@ -143,7 +143,7 @@ public static class PublicEndpoints
         group.MapPost("/{postId:int}/comments", async (int postId, CreateCommentDto newComment, AppDbContext dbContext) =>
         {
             var post = await dbContext.Posts.FindAsync(postId);
-            if (post is null)
+            if (post is null || post.IsPublished == false)
             {
                 return Results.NotFound();
             }
