@@ -32,3 +32,7 @@ The API uses ASP.NET Core's in-memory fixed-window rate limiter. Limits are per 
 Requests over a limit receive `429 Too Many Requests`, a Problem Details response, and a `Retry-After` header. Excess requests are rejected immediately rather than queued. These are starting limits and may need adjustment for real traffic; readers behind the same NAT, office, or VPN share the public IP-based limit.
 
 The limiter reads `RemoteIpAddress`. When deploying behind a reverse proxy, configure ASP.NET Core forwarded headers to trust only that proxy; do not trust arbitrary client-supplied `X-Forwarded-For` values. In-memory limits are local to one API process and reset when it restarts, so a multi-instance deployment needs a shared limiter or enforcement at the gateway.
+
+## Deploy miễn phí
+
+Hướng dẫn deploy frontend, API và PostgreSQL: [DEPLOY-FREE.md](./DEPLOY-FREE.md).
