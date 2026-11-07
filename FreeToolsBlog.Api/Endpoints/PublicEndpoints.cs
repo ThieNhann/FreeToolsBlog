@@ -35,17 +35,34 @@ public static class PublicEndpoints
         // GET /posts?pageNumber={x}&pageSize={y}
         group.MapGet("/", async (
             [AsParametersAttribute] PaginationParams validFilter,
-            AppDbContext dbContext) => 
+            AppDbContext dbContext,
+            string? search = null) =>
         {
-            var skip = (validFilter.PageNumber - 1) * validFilter.PageSize;
-            var totalRecords = await dbContext.Posts.CountAsync();
+            var posts = dbContext.Posts.AsNoTracking();
+            if (!string.IsNullOrWhiteSpace(search))
+            {
+                search = search.Trim();
+                if (search.Length > 100)
+                {
+                    return Results.BadRequest(new { message = "Search text cannot exceed 100 characters." });
+                }
 
-            var data = await dbContext.Posts
-                                        .AsNoTracking()
-                                        .OrderBy(post => post.Id)
-                                        .Skip(skip)
-                                        .Take(validFilter.PageSize)
-                                        .ToListAsync();
+                var escapedSearch = search.Replace("\\", "\\\\").Replace("%", "\\%").Replace("_", "\\_");
+                var pattern = $"%{escapedSearch}%";
+                posts = posts.Where(post => post.IsPublished &&
+                    (EF.Functions.Like(post.Title, pattern, "\\") ||
+                     EF.Functions.Like(post.Summary, pattern, "\\")));
+            }
+
+            var skip = (validFilter.PageNumber - 1) * validFilter.PageSize;
+            var totalRecords = await posts.CountAsync();
+
+            var data = await (string.IsNullOrWhiteSpace(search)
+                ? posts.OrderBy(post => post.Id)
+                : posts.OrderByDescending(post => post.Id))
+                .Skip(skip)
+                .Take(validFilter.PageSize)
+                .ToListAsync();
 
             var response = new PagedResponse<Post>(data, validFilter.PageNumber, validFilter.PageSize, totalRecords);
             return Results.Ok(response);

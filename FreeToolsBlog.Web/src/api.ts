@@ -93,6 +93,10 @@ export const api = {
   listPosts(pageNumber: number, pageSize: number, token?: string) {
     return request<Page<PostRecord>>(`/posts?pageNumber=${pageNumber}&pageSize=${pageSize}`, {}, token);
   },
+  searchPosts(search: string, pageNumber: number, pageSize: number) {
+    const params = new URLSearchParams({ search, pageNumber: String(pageNumber), pageSize: String(pageSize) });
+    return request<Page<PostRecord>>(`/posts?${params}`);
+  },
   getPost(slug: string) {
     return request<PostRecord>(`/posts/${encodeURIComponent(slug)}`);
   },

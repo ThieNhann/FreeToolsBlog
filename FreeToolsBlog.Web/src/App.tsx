@@ -55,7 +55,6 @@ function SiteHeader({ navigate, admin = false, onLogout }: { navigate: (path: st
   return <header className="site-header">
     <div className="masthead-line">
       <SiteLink to="/" navigate={navigate} className="wordmark">FreeToolsBlog</SiteLink>
-      <p className="masthead-note">Free tools · Practical guides</p>
       <nav aria-label="Main navigation" className="header-nav">
         {admin ? <>
           <SiteLink to="/admin" navigate={navigate}>Posts</SiteLink>
@@ -73,7 +72,6 @@ function SiteHeader({ navigate, admin = false, onLogout }: { navigate: (path: st
 function SiteFooter({ navigate }: { navigate: (path: string) => void }) {
   return <footer className="site-footer">
     <SiteLink to="/" navigate={navigate} className="footer-wordmark">FreeToolsBlog</SiteLink>
-    <span>Free tools and how to use them.</span>
     <SiteLink to="/admin" navigate={navigate}>Admin</SiteLink>
   </footer>;
 }
@@ -94,20 +92,27 @@ function LoadingRows() {
 
 function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
   const [pageNumber, setPageNumber] = useState(1);
-  const [page, setPage] = useState<{ data: PostRecord[] } | null>(null);
+  const [page, setPage] = useState<{ data: PostRecord[]; totalRecords?: number } | null>(null);
   const [hasNext, setHasNext] = useState(false);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [loadRetry, setLoadRetry] = useState(0);
+  const [query, setQuery] = useState("");
+  const [activeSearch, setActiveSearch] = useState("");
 
   useEffect(() => {
     let active = true;
     void (async () => {
       try {
-        const result = await loadPublishedPage(pageNumber);
+        const result = activeSearch
+          ? await api.searchPosts(activeSearch, pageNumber, PAGE_SIZE)
+          : await loadPublishedPage(pageNumber);
         if (active) {
-          setHasNext(result.hasNext);
-          setPage({ data: result.data });
+          setHasNext("hasNext" in result ? result.hasNext : pageNumber < result.totalPages);
+          setPage({
+            data: result.data,
+            totalRecords: "totalRecords" in result ? result.totalRecords : undefined,
+          });
         }
       } catch (reason) {
         if (active) setError(errorMessage(reason, "Could not load the post list."));
@@ -116,20 +121,41 @@ function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
       }
     })();
     return () => { active = false; };
-  }, [pageNumber, loadRetry]);
+  }, [activeSearch, pageNumber, loadRetry]);
 
   const published = page?.data ?? [];
+  const submitSearch = (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setLoading(true);
+    setError("");
+    setPageNumber(1);
+    setActiveSearch(query.trim());
+    setLoadRetry((current) => current + 1);
+  };
+  const clearSearch = () => {
+    setQuery("");
+    if (!activeSearch) return;
+    setLoading(true);
+    setError("");
+    setPageNumber(1);
+    setActiveSearch("");
+  };
 
   return <>
     <SiteHeader navigate={navigate} />
     <main className="page-shell">
       <section className="index-intro" aria-labelledby="index-title">
-        <h1 id="index-title">Useful tools<br />for everyday<br className="sm:hidden" /> work.</h1>
-        <p className="intro-copy">Free online tools and practical guides for everyday work.</p>
+        <h1 id="index-title">Free / open-source tools for you.</h1>
       </section>
 
       <section className="post-index" aria-label="Post list">
-        <div className="section-heading"><h2>Posts</h2><span>{loading ? "Updating" : ""}</span></div>
+        <div className="section-heading"><h2>Posts</h2><span aria-live="polite">{loading ? "Updating" : activeSearch && page ? `${page.totalRecords} results` : ""}</span></div>
+        <form className="public-search" role="search" onSubmit={submitSearch}>
+          <label className="sr-only" htmlFor="post-search">Search posts by title or summary</label>
+          <input id="post-search" type="search" value={query} maxLength={100} onChange={(event) => setQuery(event.target.value)} placeholder="Search posts…" />
+          <button className="button button-dark" type="submit">Search</button>
+          {query && <button className="text-action" type="button" onClick={clearSearch}>Clear</button>}
+        </form>
         {loading ? <LoadingRows /> : error ? <ErrorNotice onRetry={() => { setLoading(true); setError(""); setLoadRetry((current) => current + 1); }}>{error}</ErrorNotice> : published.length ? <div className="post-list">
           {published.map((post, index) => <article className={`post-row ${index === 0 ? "post-row-featured" : ""}`} key={post.id}>
             <div className="post-meta"><time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time><span>POST</span><span>{formatViewCount(post.viewCount)}</span></div>
@@ -141,16 +167,16 @@ function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
             {post.coverImageUrl && <img className="post-cover" src={post.coverImageUrl} alt={`Cover image: ${post.title}`} loading="lazy" onError={(event) => { event.currentTarget.hidden = true; }} />}
           </article>)}
         </div> : <div className="empty-state">
-          <h3>No posts yet.</h3>
-          <p>New posts will appear here.</p>
+          <h3>{activeSearch ? "No matching posts." : "No posts yet."}</h3>
+          <p>{activeSearch ? "Try a different title or phrase." : "New posts will appear here."}</p>
         </div>}
         {!loading && !error && page && (pageNumber > 1 || hasNext) && <nav className="pagination" aria-label="Post pagination">
           <button type="button" onClick={() => { setLoading(true); setError(""); setPageNumber((current) => Math.max(1, current - 1)); }} disabled={pageNumber <= 1}>
-            <ArrowIcon direction="left" /> Newer posts
+            <ArrowIcon direction="left" /> {activeSearch ? "Previous results" : "Newer posts"}
           </button>
           <span>Page {pageNumber}</span>
           <button type="button" onClick={() => { setLoading(true); setError(""); setPageNumber((current) => current + 1); }} disabled={!hasNext}>
-            Older posts <ArrowIcon />
+            {activeSearch ? "More results" : "Older posts"} <ArrowIcon />
           </button>
         </nav>}
       </section>

@@ -17,6 +17,10 @@
 .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 20px; border-bottom: 1px solid #8f8c83; padding: 0 0 11px; }
 .section-heading h2 { margin: 0; font-family: "Literata", Georgia, serif; font-size: 25px; font-weight: 500; letter-spacing: -.025em; }
 .section-heading > span { color: #545b53; font-size: 11px; }
+.public-search { display: flex; align-items: center; gap: 10px; margin: 16px 0 2px; }
+.public-search input { flex: 1; min-width: 0; min-height: 42px; border: 1px solid #aaa69b; border-radius: 4px; padding: 10px 11px; background: #fffdf8; color: #20211f; font-size: 13px; }
+.public-search input::placeholder { color: #50564f; opacity: 1; }
+.public-search .text-action { flex: none; }
 .post-row { display: grid; grid-template-columns: 138px minmax(0, 1fr); gap: 26px; border-bottom: 1px solid #c2beb3; padding: 25px 0 27px; }
 .post-row-featured { padding-block: 29px 32px; }
 .post-meta { display: flex; flex-direction: column; gap: 6px; padding-top: 5px; color: #50564f; font-size: 11px; line-height: 1.55; }
@@ -197,6 +201,8 @@
 @media (max-width: 440px) {
   .site-footer { align-items: flex-start; flex-direction: column; gap: 7px; }
   .section-heading h2 { font-size: 22px; }
+  .public-search { display: grid; grid-template-columns: minmax(0, 1fr) auto; }
+  .public-search .text-action { grid-column: 1 / -1; justify-self: start; }
   .comment-meta { align-items: flex-start; flex-direction: column; gap: 3px; }
   .form-actions .button { flex: 1; }
 }

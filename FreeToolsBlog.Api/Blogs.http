@@ -5,6 +5,9 @@
 ### Public: list posts
 GET {{baseUrl}}/posts?pageNumber=1&pageSize=5
 
+### Public: search published posts by title or summary
+GET {{baseUrl}}/posts?search=free%20tools&pageNumber=1&pageSize=5
+
 ### Public: get post by slug
 GET {{baseUrl}}/posts/5-cong-cu-truc-tuyen-mien-phi
 
