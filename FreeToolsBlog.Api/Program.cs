@@ -103,8 +103,24 @@ builder.Services.AddRateLimiter(options =>
 builder.Services.AddMemoryCache();
 builder.Services.AddValidation();
 builder.AddAppDb();
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowCloudflarePages", policy =>
+    {
+        policy.WithOrigins(
+                "https://your-app.pages.dev",       // URL mặc định của Cloudflare Pages
+                "https://yourcustomdomain.com"     // Tên miền tùy chỉnh (nếu có)
+              )
+              .AllowAnyHeader()
+              .AllowAnyMethod()
+              .AllowCredentials();
+    });
+}); 
+
 var app = builder.Build();
 
+app.UseCors("AllowCloudflarePages");
 app.UseRouting();
 app.UseCors("Frontend");
 app.UseAuthentication();
