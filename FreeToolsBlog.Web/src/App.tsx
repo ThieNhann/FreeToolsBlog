@@ -163,7 +163,7 @@ function PublicIndex({ navigate }: { navigate: (path: string) => void }) {
           <button className="button button-dark" type="submit">Search</button>
           {query && <button className="text-action" type="button" onClick={clearSearch}>Clear</button>}
         </form>
-        {loading ? <LoadingRows /> : error ? <ErrorNotice onRetry={() => { setLoading(true); setError(""); setLoadRetry((current) => current + 1); }}>{error}</ErrorNotice> : published.length ? <div className="post-list">
+        {loading ? <>{!page && <p className="server-starting-notice" role="status">The server is waking up. This may take a moment on your first visit.</p>}<LoadingRows /></> : error ? <ErrorNotice onRetry={() => { setLoading(true); setError(""); setLoadRetry((current) => current + 1); }}>{error}</ErrorNotice> : published.length ? <div className="post-list">
           {published.map((post, index) => <article className={`post-row ${index === 0 ? "post-row-featured" : ""}`} key={post.id}>
             <div className="post-meta"><time dateTime={post.createdAt}>{formatDate(post.createdAt)}</time><span>POST</span><span>{formatViewCount(post.viewCount)}</span></div>
             <div className="post-copy">
@@ -275,7 +275,7 @@ function PostDetail({ slug, navigate }: { slug: string; navigate: (path: string)
     <SiteHeader navigate={navigate} />
     <main className="page-shell article-shell">
       <SiteLink to="/" navigate={navigate} className="back-link"><ArrowIcon direction="left" /> All posts</SiteLink>
-      {loading ? <div className="article-loading" aria-busy="true"><span /><span /><span /></div> : error ? <div className="not-found"><h1>{error}</h1><p>This post may have been deleted or is not published.</p><SiteLink to="/" navigate={navigate} className="button button-dark">Back to posts</SiteLink></div> : post && <article>
+      {loading ? <div className="article-loading" aria-busy="true"><p className="server-starting-notice" role="status">The server is waking up. This may take a moment on your first visit.</p><span /><span /><span /></div> : error ? <div className="not-found"><h1>{error}</h1><p>This post may have been deleted or is not published.</p><SiteLink to="/" navigate={navigate} className="button button-dark">Back to posts</SiteLink></div> : post && <article>
         <header className="article-header">
           <h1>{post.title}</h1>
           <p className="article-summary">{post.summary}</p>

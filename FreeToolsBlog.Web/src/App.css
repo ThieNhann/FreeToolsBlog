@@ -157,6 +157,7 @@
 .article-loading span:first-child { width: 65%; height: 48px; }
 .article-loading span:nth-child(2) { width: 92%; }
 .article-loading span:last-child { width: 78%; }
+.server-starting-notice { margin: 0 0 14px; color: #4c5948; font-size: 12px; line-height: 1.6; text-align: center; }
 .loading-list { border-top: 1px solid #c2beb3; }
 .loading-row { display: grid; grid-template-columns: 138px 1fr; gap: 26px; border-bottom: 1px solid #c2beb3; padding: 25px 0; }
 .loading-row span { height: 12px; border-radius: 2px; background: #e3e0d7; animation: quiet-pulse 1.4s ease-in-out infinite alternate; }

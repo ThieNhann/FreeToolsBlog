@@ -11,6 +11,8 @@ public static class PublicEndpoints
 {
     public static void MapPublicEndpoints(this WebApplication app)
     {
+        app.MapGet("/health", () => Results.Ok("Ok"));
+        
         var group = app.MapGroup("/posts");
 
         // GET /posts
