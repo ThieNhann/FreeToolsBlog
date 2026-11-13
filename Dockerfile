@@ -8,7 +8,7 @@ RUN dotnet publish "FreeToolsBlog.Api.csproj" -c Release -o /app/publish /p:UseA
 
 FROM mcr.microsoft.com/dotnet/aspnet:10.0
 WORKDIR /app
-ENV ASPNETCORE_URLS=http://+:8080
-EXPOSE 8080
+ENV ASPNETCORE_URLS=http://+:10000
+EXPOSE 10000
 COPY --from=build /app/publish .
 ENTRYPOINT ["dotnet", "FreeToolsBlog.Api.dll"]
